@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - Familia Animal Protegida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container py-4">
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'foro' %}">Foro</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'foro' %}?category={{ post.category.id }}">{{ post.category.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-9">
+                <!-- publi -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">{{ post.title }}</h4>
+                        {% if user == post.author or user.userprofile.is_admin %}
+                        <div class="btn-group">
+                            <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletePostModal">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="bi bi-person"></i> {{ post.author.username }} |
+                                    <i class="bi bi-calendar"></i> {{ post.created_at|date:"d/m/Y H:i" }}
+                                    {% if post.created_at != post.updated_at %}
+                                    | <i class="bi bi-pencil"></i> Editado {{ post.updated_at|timesince }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary like-post" data-post-id="{{ post.id }}">
+                                    <i class="bi {% if user in post.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                                    <span class="likes-count">{{ post.likes.count }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="post-content mb-3">
+                            {{ post.content|linebreaks }}
+                        </div>
+
+                        <div class="post-tags">
+                            {% for tag in post.tags %}
+                            <span class="badge bg-secondary">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <i class="bi bi-eye"></i> {{ post.views }} vistas |
+                        <i class="bi bi-chat"></i> {{ comments|length }} comentarios
+                    </div>
+                </div>
+
+                <!-- com -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Comentarios</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- formulario de com -->
+                        <form method="post" action="{% url 'view_post' post.id %}" class="mb-4">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea class="form-control" name="content" rows="3" required placeholder="Escribe tu comentario..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Comentar
+                            </button>
+                        </form>
+
+                        <!-- lista de com  -->
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                            {% if not comment.parent %}
+                            <div class="comment mb-4" id="comment-{{ comment.id }}">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">
+                                                <i class="bi bi-person"></i> {{ comment.author.username }} |
+                                                <i class="bi bi-calendar"></i> {{ comment.created_at|timesince }}
+                                            </small>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary like-comment" data-comment-id="{{ comment.id }}">
+                                                    <i class="bi {% if user in comment.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                                                    <span class="likes-count">{{ comment.likes.count }}</span>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary reply-btn" data-comment-id="{{ comment.id }}">
+                                                    <i class="bi bi-reply"></i> Responder
+                                                </button>
+                                                {% if user == comment.author or user.userprofile.is_admin %}
+                                                <button class="btn btn-sm btn-outline-danger delete-comment-btn" data-comment-id="{{ comment.id }}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="mt-2 mb-0">{{ comment.content }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- respuestas -->
+                                <div class="replies ms-4 mt-2">
+                                    {% for reply in comment.replies.all %}
+                                    <div class="reply mb-2" id="comment-{{ reply.id }}">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-person"></i> {{ reply.author.username }} |
+                                                        <i class="bi bi-calendar"></i> {{ reply.created_at|timesince }}
+                                                    </small>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-sm btn-outline-primary like-comment" data-comment-id="{{ reply.id }}">
+                                                            <i class="bi {% if user in reply.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                                                            <span class="likes-count">{{ reply.likes.count }}</span>
+                                                        </button>
+                                                        {% if user == reply.author or user.userprofile.is_admin %}
+                                                        <button class="btn btn-sm btn-outline-danger delete-comment-btn" data-comment-id="{{ reply.id }}">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <p class="mt-2 mb-0">{{ reply.content }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                    <!-- responder al foro -->
+                                    <form method="post" action="{% url 'view_post' post.id %}" class="reply-form mt-2" style="display: none;" data-comment-id="{{ comment.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <div class="input-group">
+                                            <textarea class="form-control" name="content" rows="1" required placeholder="Escribe tu respuesta..."></textarea>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% empty %}
+                            <p class="text-muted">No hay comentarios aún. ¡Sé el primero en comentar!</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Información</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <small class="d-block text-muted">Categoría</small>
+                            <span><i class="bi bi-{{ post.category.icon }}"></i> {{ post.category.name }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            <small class="d-block text-muted">Autor</small>
+                            <span><i class="bi bi-person"></i> {{ post.author.username }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            <small class="d-block text-muted">Fecha</small>
+                            <span><i class="bi bi-calendar"></i> {{ post.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Publicaciones Relacionadas</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for related_post in post.category.forumpost_set.all|slice:":5" %}
+                        {% if related_post != post %}
+                        <a href="{% url 'view_post' related_post.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ related_post.title }}</h6>
+                                <small>{{ related_post.created_at|timesince }}</small>
+                            </div>
+                            <small>
+                                <i class="bi bi-chat"></i> {{ related_post.comments.count }}
+                                <i class="bi bi-heart"></i> {{ related_post.likes.count }}
+                            </small>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- M borrar Post -->
+    <div class="modal fade" id="deletePostModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_post' post.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="text-center p-3">
+                © 2024 Familia Animal Protegida. Todos los derechos reservados.
+                <section class="mb-4">
+                    <a href="mailto:fappet@proton.me" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-envelope me-1"></i> fappet@proton.me
+                    </a>
+                    <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
+                        <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
+                    </a>
+                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    </a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.reply-btn').click(function() {
+                var commentId = $(this).data('comment-id');
+                $('.reply-form[data-comment-id="' + commentId + '"]').toggle();
+            });
+
+            $('.like-post').click(function() {
+                var postId = $(this).data('post-id');
+                var button = $(this);
+                $.post('{% url "toggle_like_post" post.id %}', {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }, function(data) {
+                    button.find('.likes-count').text(data.likes_count);
+                    button.find('i').toggleClass('bi-heart bi-heart-fill');
+                });
+            });
+
+            $('.like-comment').click(function() {
+                var commentId = $(this).data('comment-id');
+                var button = $(this);
+                $.post('/foro/comentario/' + commentId + '/like/', {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }, function(data) {
+                    button.find('.likes-count').text(data.likes_count);
+                    button.find('i').toggleClass('bi-heart bi-heart-fill');
+                });
+            });
+
+            $('.delete-comment-btn').click(function() {
+                if (confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
+                    var commentId = $(this).data('comment-id');
+                    var commentElement = $('#comment-' + commentId);
+                    $.post('/foro/comentario/' + commentId + '/delete/', {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    }, function(data) {
+                        if (data.success) {
+                            commentElement.fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

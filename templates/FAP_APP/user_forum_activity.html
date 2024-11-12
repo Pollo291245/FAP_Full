@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad en el Foro - Familia Animal Protegida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container py-4">
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'foro' %}">Foro</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if profile_user == user %}
+                    Mi Actividad
+                    {% else %}
+                    Actividad de {{ profile_user.username }}
+                    {% endif %}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- estadisticas -->
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Estadísticas</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-file-text"></i> Publicaciones</span>
+                                <span class="badge bg-primary rounded-pill">{{ posts.count }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-chat"></i> Comentarios</span>
+                                <span class="badge bg-primary rounded-pill">{{ comments.count }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-heart"></i> Me gusta dados</span>
+                                <span class="badge bg-primary rounded-pill">{{ profile_user.liked_posts.count|add:profile_user.liked_comments.count }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-calendar"></i> Miembro desde</span>
+                                <small>{{ profile_user.date_joined|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if profile_user == user %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Acciones</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'create_post' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-plus-circle"></i> Nueva Publicación
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Cont p -->
+            <div class="col-md-9">
+                <!-- Publi -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Publicaciones</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for post in posts %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'view_post' post.id %}" class="text-decoration-none">{{ post.title }}</a>
+                                </h6>
+                                <small class="text-muted">{{ post.created_at|timesince }}</small>
+                            </div>
+                            <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-tag"></i> {{ post.category.name }} |
+                                <i class="bi bi-chat"></i> {{ post.comments.count }} comentarios |
+                                <i class="bi bi-heart"></i> {{ post.likes.count }} me gusta |
+                                <i class="bi bi-eye"></i> {{ post.views }} vistas
+                            </small>
+                            {% if profile_user == user %}
+                            <div class="mt-2">
+                                <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ post.id }}')">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item">
+                            <p class="mb-0 text-muted">No hay publicaciones para mostrar.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Com -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Comentarios</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for comment in comments %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    En: <a href="{% url 'view_post' comment.post.id %}" class="text-decoration-none">{{ comment.post.title }}</a>
+                                </h6>
+                                <small class="text-muted">{{ comment.created_at|timesince }}</small>
+                            </div>
+                            <p class="mb-1">{{ comment.content }}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-heart"></i> {{ comment.likes.count }} me gusta
+                                {% if comment.parent %}
+                                | <i class="bi bi-reply"></i> Respuesta a {{ comment.parent.author.username }}
+                                {% endif %}
+                            </small>
+                            {% if profile_user == user %}
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteComment('{{ comment.id }}')">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item">
+                            <p class="mb-0 text-muted">No hay comentarios para mostrar.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- M de confirmación para eliminar publi -->
+    <div class="modal fade" id="deletePostModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deletePostForm" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="text-center p-3">
+                © 2024 Familia Animal Protegida. Todos los derechos reservados.
+                <section class="mb-4">
+                    <a href="mailto:fappet@proton.me" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-envelope me-1"></i> fappet@proton.me
+                    </a>
+                    <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
+                        <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
+                    </a>
+                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    </a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function confirmDelete(postId) {
+            const modal = new bootstrap.Modal(document.getElementById('deletePostModal'));
+            const form = document.getElementById('deletePostForm');
+            form.action = `/foro/post/${postId}/eliminar/`;
+            modal.show();
+        }
+
+        function confirmDeleteComment(commentId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
+                $.post('/foro/comentario/' + commentId + '/delete/', {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }, function(data) {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

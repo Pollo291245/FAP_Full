@@ -1,0 +1,492 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - FAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if location_type == 'adopcion' %}active{% endif %}" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if location_type == 'veterinarias' %}active{% endif %}" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if location_type == 'tiendas' %}active{% endif %}" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>{{ page_title }}</h2>
+            {% if user.userprofile.is_admin %}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLocationModal">
+                <i class="bi bi-plus-lg"></i> Agregar {{ location_type_singular }}
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtros</h5>
+                        <form method="GET">
+                            <div class="mb-3">
+                                <label class="form-label">Buscar</label>
+                                <input type="text" class="form-control" name="search" value="{{ request.GET.search }}">
+                            </div>
+                            {% if location_type == 'tiendas' %}
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Tienda</label>
+                                <select class="form-select" name="store_type">
+                                    <option value="">Todos</option>
+                                    <option value="pet_shop" {% if request.GET.store_type == 'pet_shop' %}selected{% endif %}>Tienda de Mascotas</option>
+                                    <option value="vet_shop" {% if request.GET.store_type == 'vet_shop' %}selected{% endif %}>Tienda Veterinaria</option>
+                                    <option value="food_shop" {% if request.GET.store_type == 'food_shop' %}selected{% endif %}>Tienda de Alimentos</option>
+                                </select>
+                            </div>
+                            {% endif %}
+                            {% if location_type == 'veterinarias' %}
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Servicio</label>
+                                <select class="form-select" name="clinic_type">
+                                    <option value="">Todos</option>
+                                    <option value="general" {% if request.GET.clinic_type == 'general' %}selected{% endif %}>Medicina General</option>
+                                    <option value="emergency" {% if request.GET.clinic_type == 'emergency' %}selected{% endif %}>Emergencias</option>
+                                    <option value="surgery" {% if request.GET.clinic_type == 'surgery' %}selected{% endif %}>Cirugía</option>
+                                    <option value="specialist" {% if request.GET.clinic_type == 'specialist' %}selected{% endif %}>Especialista</option>
+                                </select>
+                            </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Lista de Ubicaciones -->
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for location in locations %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if location.image %}
+                            <img src="{{ location.image.url }}" class="card-img-top" alt="{{ location.name }}">
+                            {% else %}
+                            <img src="{% static 'FAP_App/img/placeholder.jpg' %}" class="card-img-top" alt="Placeholder">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ location.name }}</h5>
+                                <p class="card-text">{{ location.description|truncatewords:30 }}</p>
+                                <div class="mb-2">
+                                    <i class="bi bi-geo-alt"></i> {{ location.address }}<br>
+                                    <i class="bi bi-telephone"></i> {{ location.phone }}<br>
+                                    <i class="bi bi-envelope"></i> {{ location.email }}
+                                </div>
+                                {% if location_type == 'tiendas' %}
+                                <p class="badge bg-info">{{ location.get_store_type_display }}</p>
+                                {% if location.delivery %}
+                                <p class="badge bg-success">Delivery Disponible</p>
+                                {% endif %}
+                                {% endif %}
+                                {% if location_type == 'veterinarias' %}
+                                <p class="badge bg-info">{{ location.get_clinic_type_display }}</p>
+                                {% if location.emergency_service %}
+                                <p class="badge bg-danger">Servicio de Emergencia</p>
+                                {% endif %}
+                                {% endif %}
+                                {% if location_type == 'adopcion' %}
+                                <p class="badge bg-primary">{{ location.total_pets }} mascotas</p>
+                                {% if location.needs_donations %}
+                                <p class="badge bg-warning text-dark">Necesita Donaciones</p>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailsModal{{ location.id }}">
+                                            Ver Detalles
+                                        </button>
+                                        {% if user.userprofile.is_admin %}
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editModal{{ location.id }}">
+                                            Editar
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ location.id }}">
+                                            Eliminar
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-star-fill text-warning"></i> {{ location.rating }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="detailsModal{{ location.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ location.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    {% if location.image %}
+                                    <img src="{{ location.image.url }}" class="img-fluid mb-3" alt="{{ location.name }}">
+                                    {% endif %}
+                                    <p>{{ location.description }}</p>
+                                    <hr>
+                                    <h6>Información de Contacto</h6>
+                                    <p>
+                                        <i class="bi bi-geo-alt"></i> {{ location.address }}<br>
+                                        <i class="bi bi-telephone"></i> {{ location.phone }}<br>
+                                        <i class="bi bi-envelope"></i> {{ location.email }}<br>
+                                        {% if location.website %}
+                                        <i class="bi bi-globe"></i> <a href="{{ location.website }}" target="_blank">{{ location.website }}</a>
+                                        {% endif %}
+                                    </p>
+                                    {% if location_type == 'tiendas' %}
+                                    <h6>Información de la Tienda</h6>
+                                    <p>
+                                        Tipo: {{ location.get_store_type_display }}<br>
+                                        {% if location.delivery %}
+                                        Delivery: Sí (Radio: {{ location.delivery_radius }}km)<br>
+                                        {% endif %}
+                                        Horario: {{ location.opening_hours|safe }}
+                                    </p>
+                                    {% endif %}
+                                    {% if location_type == 'veterinarias' %}
+                                    <h6>Servicios Veterinarios</h6>
+                                    <p>
+                                        Tipo: {{ location.get_clinic_type_display }}<br>
+                                        {% if location.emergency_service %}
+                                        Servicio de Emergencia: Disponible<br>
+                                        {% endif %}
+                                        Especialidades: {{ location.specialties|join:", " }}<br>
+                                        Veterinarios: {{ location.veterinarians|join:", " }}
+                                    </p>
+                                    {% endif %}
+                                    {% if location_type == 'adopcion' %}
+                                    <h6>Información del Centro</h6>
+                                    <p>
+                                        Mascotas disponibles: {{ location.total_pets }}<br>
+                                        Especies: {{ location.available_species|join:", " }}<br>
+                                        {% if location.needs_donations %}
+                                        <strong>Necesita Donaciones:</strong><br>
+                                        {{ location.donation_info }}
+                                        {% endif %}
+                                    </p>
+                                    <h6>Proceso de Adopción</h6>
+                                    <p>{{ location.adoption_process }}</p>
+                                    <h6>Requisitos</h6>
+                                    <p>{{ location.requirements }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.userprofile.is_admin %}
+                    <div class="modal fade" id="editModal{{ location.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST" action="{% url 'edit_location' location_type location.id %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Editar {{ location_type_singular }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Campos comunes -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" name="name" value="{{ location.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" name="address" value="{{ location.address }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" name="phone" value="{{ location.phone }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ location.email }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Sitio Web</label>
+                                            <input type="url" class="form-control" name="website" value="{{ location.website }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descripción</label>
+                                            <textarea class="form-control" name="description" rows="3" required>{{ location.description }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Imagen</label>
+                                            <input type="file" class="form-control" name="image">
+                                        </div>
+
+                                        {% if location_type == 'tiendas' %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Tienda</label>
+                                            <select class="form-select" name="store_type" required>
+                                                <option value="pet_shop" {% if location.store_type == 'pet_shop' %}selected{% endif %}>Tienda de Mascotas</option>
+                                                <option value="vet_shop" {% if location.store_type == 'vet_shop' %}selected{% endif %}>Tienda Veterinaria</option>
+                                                <option value="food_shop" {% if location.store_type == 'food_shop' %}selected{% endif %}>Tienda de Alimentos</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="delivery" id="delivery{{ location.id }}" {% if location.delivery %}checked{% endif %}>
+                                            <label class="form-check-label" for="delivery{{ location.id }}">Delivery Disponible</label>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if location_type == 'veterinarias' %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Clínica</label>
+                                            <select class="form-select" name="clinic_type" required>
+                                                <option value="general" {% if location.clinic_type == 'general' %}selected{% endif %}>Medicina General</option>
+                                                <option value="emergency" {% if location.clinic_type == 'emergency' %}selected{% endif %}>Emergencias</option>
+                                                <option value="surgery" {% if location.clinic_type == 'surgery' %}selected{% endif %}>Cirugía</option>
+                                                <option value="specialist" {% if location.clinic_type == 'specialist' %}selected{% endif %}>Especialista</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="emergency_service" id="emergency{{ location.id }}" {% if location.emergency_service %}checked{% endif %}>
+                                            <label class="form-check-label" for="emergency{{ location.id }}">Servicio de Emergencia</label>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if location_type == 'adopcion' %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Total de Mascotas</label>
+                                            <input type="number" class="form-control" name="total_pets" value="{{ location.total_pets }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Requisitos</label>
+                                            <textarea class="form-control" name="requirements" rows="3" required>{{ location.requirements }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Proceso de Adopción</label>
+                                            <textarea class="form-control" name="adoption_process" rows="3" required>{{ location.adoption_process }}</textarea>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="needs_donations" id="donations{{ location.id }}" {% if location.needs_donations %}checked{% endif %}>
+                                            <label class="form-check-label" for="donations{{ location.id }}">Necesita Donaciones</label>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="deleteModal{{ location.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar {{ location.name }}?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <form method="POST" action="{% url 'delete_location' location_type location.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if locations.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if locations.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Anterior</a>
+                        </li>
+                        {% endif %}
+
+                        {% for i in locations.paginator.page_range %}
+                        <li class="page-item {% if locations.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ i }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if locations.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Siguiente</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.userprofile.is_admin %}
+    <div class="modal fade" id="addLocationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{% url 'add_location' location_type %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Agregar {{ location_type_singular }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control" name="address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sitio Web</label>
+                            <input type="url" class="form-control" name="website">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Imagen</label>
+                            <input type="file" class="form-control" name="image">
+                        </div>
+
+                        {% if location_type == 'tiendas' %}
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Tienda</label>
+                            <select class="form-select" name="store_type" required>
+                                <option value="pet_shop">Tienda de Mascotas</option>
+                                <option value="vet_shop">Tienda Veterinaria</option>
+                                <option value="food_shop">Tienda de Alimentos</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" name="delivery" id="newDelivery">
+                            <label class="form-check-label" for="newDelivery">Delivery Disponible</label>
+                        </div>
+                        {% endif %}
+
+                        {% if location_type == 'veterinarias' %}
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Clínica</label>
+                            <select class="form-select" name="clinic_type" required>
+                                <option value="general">Medicina General</option>
+                                <option value="emergency">Emergencias</option>
+                                <option value="surgery">Cirugía</option>
+                                <option value="specialist">Especialista</option>
+                            </select>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" name="emergency_service" id="newEmergency">
+                            <label class="form-check-label" for="newEmergency">Servicio de Emergencia</label>
+                        </div>
+                        {% endif %}
+
+                        {% if location_type == 'adopcion' %}
+                        <div class="mb-3">
+                            <label class="form-label">Total de Mascotas</label>
+                            <input type="number" class="form-control" name="total_pets" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Requisitos</label>
+                            <textarea class="form-control" name="requirements" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Proceso de Adopción</label>
+                            <textarea class="form-control" name="adoption_process" rows="3" required></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" name="needs_donations" id="newDonations">
+                            <label class="form-check-label" for="newDonations">Necesita Donaciones</label>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="text-center p-3">
+                © 2024 Familia Animal Protegida. Todos los derechos reservados.
+                <section class="mb-4">
+                    <a href="mailto:fappet@proton.me" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-envelope me-1"></i> fappet@proton.me
+                    </a>
+                    <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
+                        <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
+                    </a>
+                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    </a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>

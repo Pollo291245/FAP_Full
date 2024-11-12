@@ -1,0 +1,139 @@
+:root {
+    --color1: #A0B9F0;
+    --color2: #6F8CE9;
+    --color3: #3B5CB8;
+    --color4: #F2F4F8;
+    --color5: #FFFFFF;
+    --color6: #4A4A4A;
+    --color7: #e0f7fa;
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color4);
+    padding-bottom: 100px;
+}
+
+.login-container {
+    flex: 1;
+}
+
+.login-card {
+    background-color: var(--color5);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.edit-container {
+    flex: 1; 
+}
+
+.edit-card {
+    width: 600px; 
+    background-color: var(--color5);
+    border-radius: 10px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    background-color: var(--color4);
+}
+
+.navbar {
+    background-color: var(--color1);
+}
+
+.navbar-brand,
+.nav-link {
+    color: var(--color5);
+}
+
+.nav-link:hover {
+    color: var(--color2);
+}
+
+footer {
+    background-color: var(--color3);
+    color: var(--color5);
+}
+
+.btn-primary {
+    background-color: var(--color1);
+    border-color: var(--color1);
+}
+
+.btn-primary:hover {
+    background-color: var(--color2);
+    border-color: var(--color2);
+}
+
+.card-title {
+    color: var(--color3);
+}
+
+.form-label {
+    color: var(--color3);
+}
+
+.input-group-text {
+    background-color: var(--color4);
+    border: none;
+}
+
+.text-decoration-none {
+    color: var(--color3);
+}
+
+.text-decoration-none:hover {
+    color: var(--color2);
+    text-decoration: underline;
+}
+
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler-icon {
+    background-color: var(--color2);
+}
+
+.nav-link {
+    padding: 10px 15px;
+    transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+    background-color: rgba(111, 140, 233, 0.5);
+    color: var(--color1);
+    border-radius: 5px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+}
+
+footer a.text-reset {
+    color: var(--color5);
+}
+
+footer a.text-reset:hover {
+    color: var(--color2);
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--color3);
+    color: var(--color5);
+    padding: 0;
+    margin: 0;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

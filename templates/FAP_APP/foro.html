@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foro - Familia Animal Protegida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="{% url 'landingP' %}">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container py-4">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Categorías</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'foro' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                            <i class="bi bi-grid"></i> Todas las categorías
+                        </a>
+                        {% for category in categories %}
+                        <a href="?category={{ category.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if selected_category == category.id|stringformat:'s' %}active{% endif %}">
+                            <span><i class="bi bi-{{ category.icon }}"></i> {{ category.name }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ category.forumpost_set.count }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Acciones</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'create_post' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-plus-circle"></i> Nueva Publicación
+                        </a>
+                        <a href="{% url 'user_forum_activity' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person"></i> Mi Actividad
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                {% if pinned_posts %}
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="card-title mb-0"><i class="bi bi-pin-angle"></i> Publicaciones Destacadas</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for post in pinned_posts %}
+                        <a href="{% url 'view_post' post.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ post.title }}</h6>
+                                <small>{{ post.created_at|timesince }}</small>
+                            </div>
+                            <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+                            <small>
+                                <i class="bi bi-person"></i> {{ post.author.username }} |
+                                <i class="bi bi-chat"></i> {{ post.comments.count }} comentarios |
+                                <i class="bi bi-heart"></i> {{ post.likes.count }} likes |
+                                <i class="bi bi-eye"></i> {{ post.views }} vistas
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Publicaciones</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for post in page_obj %}
+                        <a href="{% url 'view_post' post.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ post.title }}</h6>
+                                <small>{{ post.created_at|timesince }}</small>
+                            </div>
+                            <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+                            <small>
+                                <i class="bi bi-person"></i> {{ post.author.username }} |
+                                <i class="bi bi-chat"></i> {{ post.comments.count }} comentarios |
+                                <i class="bi bi-heart"></i> {{ post.likes.count }} likes |
+                                <i class="bi bi-eye"></i> {{ post.views }} vistas |
+                                <i class="bi bi-tag"></i> {{ post.category.name }}
+                            </small>
+                        </a>
+                        {% empty %}
+                        <div class="list-group-item">
+                            <p class="mb-0 text-center">No hay publicaciones disponibles.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if page_obj.paginator.num_pages > 1 %}
+                <nav aria-label="Navegación de páginas" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Primera">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Última">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Mis Últimas Publicaciones</h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for post in user_posts %}
+                                <a href="{% url 'view_post' post.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ post.title }}</h6>
+                                        <small>{{ post.created_at|timesince }}</small>
+                                    </div>
+                                    <small>
+                                        <i class="bi bi-chat"></i> {{ post.comments.count }} comentarios |
+                                        <i class="bi bi-heart"></i> {{ post.likes.count }} likes
+                                    </small>
+                                </a>
+                                {% empty %}
+                                <div class="list-group-item">No has creado ninguna publicación aún.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Mis Últimos Comentarios</h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for comment in user_comments %}
+                                <a href="{% url 'view_post' comment.post.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">En: {{ comment.post.title }}</h6>
+                                        <small>{{ comment.created_at|timesince }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ comment.content|truncatewords:15 }}</p>
+                                    <small>
+                                        <i class="bi bi-heart"></i> {{ comment.likes.count }} likes
+                                    </small>
+                                </a>
+                                {% empty %}
+                                <div class="list-group-item">No has comentado en ninguna publicación aún.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="text-center p-3">
+                © 2024 Familia Animal Protegida. Todos los derechos reservados.
+                <section class="mb-4">
+                    <a href="mailto:fappet@proton.me" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-envelope me-1"></i> fappet@proton.me
+                    </a>
+                    <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
+                        <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
+                    </a>
+                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    </a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

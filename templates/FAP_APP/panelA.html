@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Familia Animal Protegida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/panelA.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="{% url 'landingP' %}">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="d-flex">
+        <div class="admin-sidebar mt-5">
+            <h3 class="text-white mt-5">Panel de Administrador</h3>
+            <nav class="nav flex-column">
+                <a href="#gestionarUsuarios" class="nav-link" data-bs-toggle="tab"><i class="fas fa-users"></i> Gestionar Usuarios</a>
+                <a href="#gestionarForo" class="nav-link active" data-bs-toggle="tab"><i class="fas fa-comments"></i> Gestionar Foro</a>
+                <a href="#agregarVeterinaria" class="nav-link" data-bs-toggle="tab"><i class="fas fa-clinic-medical"></i> Agregar Veterinaria</a>
+                <a href="#agregarTienda" class="nav-link" data-bs-toggle="tab"><i class="fas fa-store"></i> Agregar Tienda</a>
+                <a href="#agregarCentroAdopcion" class="nav-link" data-bs-toggle="tab"><i class="fas fa-paw"></i> Agregar Centro de Adopción</a>
+                <a href="#editarVeterinaria" class="nav-link" data-bs-toggle="tab"><i class="fas fa-edit"></i> Editar Veterinaria</a>
+                <a href="#editarTienda" class="nav-link" data-bs-toggle="tab"><i class="fas fa-edit"></i> Editar Tienda</a>
+                <a href="#editarCentroAdopcion" class="nav-link" data-bs-toggle="tab"><i class="fas fa-edit"></i> Editar Centro de Adopción</a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            <div class="tab-content" id="myTabContent">
+                <div id="gestionarUsuarios" class="tab-pane fade show active">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-users"></i> Gestionar Usuarios
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            <form action="{% url 'editar' %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Editar</button>
+                                            </form>
+                                            <form action="{% url 'eliminar' %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
+                                            </form>
+                                            {% if not user.userprofile.is_banned %}
+                                            <form action="{% url 'ban_user' user.id %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="date" name="ban_end_date" required class="form-control-sm d-inline" style="width: 120px;">
+                                                <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Ban</button>
+                                            </form>
+                                            {% else %}
+                                            <form action="{% url 'unban_user' user.id %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Unban</button>
+                                            </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="gestionarForo" class="tab-pane fade show active">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fas fa-comments"></i> Publicaciones por Usuario</h5>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus"></i> Nueva Categoría
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="userPostsAccordion">
+                                {% for user in users %}
+                                    {% if user.forumpost_set.exists %}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading{{ user.id }}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ user.id }}">
+                                                {{ user.username }} ({{ user.forumpost_set.count }} publicaciones)
+                                            </button>
+                                        </h2>
+                                        <div id="collapse{{ user.id }}" class="accordion-collapse collapse" data-bs-parent="#userPostsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="list-group">
+                                                    {% for post in user.forumpost_set.all %}
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <h6 class="mb-1">{{ post.title }}</h6>
+                                                            <small>{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                                                        </div>
+                                                        <p class="mb-1">{{ post.content|truncatechars:100 }}</p>
+                                                        <div class="btn-group">
+                                                            <a href="{% url 'view_post' post.id %}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-eye"></i> Ver
+                                                            </a>
+                                                            <form method="post" action="{% url 'delete_post' post.id %}" class="d-inline">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar esta publicación?')">
+                                                                    <i class="fas fa-trash"></i> Eliminar
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+ 
+                <!-- Agregar Veterinaria -->
+                <div id="agregarVeterinaria" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-clinic-medical"></i> Agregar Veterinaria
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'add_location' 'veterinarias' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="nombreVeterinaria" class="form-label">Nombre de la Veterinaria</label>
+                                    <input type="text" class="form-control" id="nombreVeterinaria" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direccionVeterinaria" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccionVeterinaria" name="address" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telefonoVeterinaria" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefonoVeterinaria" name="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correoVeterinaria" class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correoVeterinaria" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="clinic_type" class="form-label">Tipo de Clínica</label>
+                                    <select class="form-select" id="clinic_type" name="clinic_type" required>
+                                        <option value="general">Medicina General</option>
+                                        <option value="emergency">Emergencias</option>
+                                        <option value="surgery">Cirugía</option>
+                                        <option value="specialist">Especialista</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Imagen</label>
+                                    <input type="file" class="form-control" id="image" name="image">
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="emergency_service" name="emergency_service">
+                                    <label class="form-check-label" for="emergency_service">Servicio de Emergencia</label>
+                                </div>
+                                <button type="submit" class="btn btn-custom">Agregar Veterinaria</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar Tienda -->
+                <div id="agregarTienda" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-store"></i> Agregar Tienda
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'add_location' 'tiendas' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="nombreTienda" class="form-label">Nombre de la Tienda</label>
+                                    <input type="text" class="form-control" id="nombreTienda" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direccionTienda" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccionTienda" name="address" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telefonoTienda" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefonoTienda" name="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correoTienda" class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correoTienda" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="store_type" class="form-label">Tipo de Tienda</label>
+                                    <select class="form-select" id="store_type" name="store_type" required>
+                                        <option value="pet_shop">Tienda de Mascotas</option>
+                                        <option value="vet_shop">Tienda Veterinaria</option>
+                                        <option value="food_shop">Tienda de Alimentos</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Imagen</label>
+                                    <input type="file" class="form-control" id="image" name="image">
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="delivery" name="delivery">
+                                    <label class="form-check-label" for="delivery">Delivery Disponible</label>
+                                </div>
+                                <button type="submit" class="btn btn-custom">Agregar Tienda</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar Centro de Adopción -->
+                <div id="agregarCentroAdopcion" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-paw"></i> Agregar Centro de Adopción
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'add_location' 'adopcion' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="nombreCentro" class="form-label">Nombre del Centro</label>
+                                    <input type="text" class="form-control" id="nombreCentro" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direccionCentro" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccionCentro" name="address" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telefonoCentro" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefonoCentro" name="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correoCentro" class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="correoCentro" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="total_pets" class="form-label">Total de Mascotas</label>
+                                    <input type="number" class="form-control" id="total_pets" name="total_pets" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="requirements" class="form-label">Requisitos</label>
+                                    <textarea class="form-control" id="requirements" name="requirements" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="adoption_process" class="form-label">Proceso de Adopción</label>
+                                    <textarea class="form-control" id="adoption_process" name="adoption_process" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Imagen</label>
+                                    <input type="file" class="form-control" id="image" name="image">
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="needs_donations" name="needs_donations">
+                                    <label class="form-check-label" for="needs_donations">Necesita Donaciones</label>
+                                </div>
+                                <button type="submit" class="btn btn-custom">Agregar Centro de Adopción</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editar Veterinaria -->
+                <div id="editarVeterinaria" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-edit"></i> Editar Veterinarias
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for vet in veterinaries %}
+                                <div class="list-group-item">
+                                    <h5>{{ vet.name }}</h5>
+                                    <form action="{% url 'edit_location' 'veterinarias' vet.id %}" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" name="name" value="{{ vet.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" name="address" value="{{ vet.address }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" name="phone" value="{{ vet.phone }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ vet.email }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Clínica</label>
+                                            <select class="form-select" name="clinic_type" required>
+                                                <option value="general" {% if vet.clinic_type == 'general' %}selected{% endif %}>Medicina General</option>
+                                                <option value="emergency" {% if vet.clinic_type == 'emergency' %}selected{% endif %}>Emergencias</option>
+                                                <option value="surgery" {% if vet.clinic_type == 'surgery' %}selected{% endif %}>Cirugía</option>
+                                                <option value="specialist" {% if vet.clinic_type == 'specialist' %}selected{% endif %}>Especialista</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descripción</label>
+                                            <textarea class="form-control" name="description" required>{{ vet.description }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Nueva Imagen</label>
+                                            <input type="file" class="form-control" name="image">
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="emergency_service" {% if vet.emergency_service %}checked{% endif %}>
+                                            <label class="form-check-label">Servicio de Emergencia</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                        <a href="{% url 'delete_location' 'veterinarias' vet.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta veterinaria?')">Eliminar</a>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editar Tienda -->
+                <div id="editarTienda" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-edit"></i> Editar Tiendas
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for store in stores %}
+                                <div class="list-group-item">
+                                    <h5>{{ store.name }}</h5>
+                                    <form action="{% url 'edit_location' 'tiendas' store.id %}" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" name="name" value="{{ store.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" name="address" value="{{ store.address }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" name="phone" value="{{ store.phone }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ store.email }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Tienda</label>
+                                            <select class="form-select" name="store_type" required>
+                                                <option value="pet_shop" {% if store.store_type == 'pet_shop' %}selected{% endif %}>Tienda de Mascotas</option>
+                                                <option value="vet_shop" {% if store.store_type == 'vet_shop' %}selected{% endif %}>Tienda Veterinaria</option>
+                                                <option value="food_shop" {% if store.store_type == 'food_shop' %}selected{% endif %}>Tienda de Alimentos</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descripción</label>
+                                            <textarea class="form-control" name="description" required>{{ store.description }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Nueva Imagen</label>
+                                            <input type="file" class="form-control" name="image">
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="delivery" {% if store.delivery %}checked{% endif %}>
+                                            <label class="form-check-label">Delivery Disponible</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                        <a href="{% url 'delete_location' 'tiendas' store.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta tienda?')">Eliminar</a>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editar Centro de Adopción -->
+                <div id="editarCentroAdopcion" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="fas fa-edit"></i> Editar Centros de Adopción</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for center in adoption_centers %}
+                                <div class="list-group-item">
+                                    <h5>{{ center.name }}</h5>
+                                    <form action="{% url 'edit_location' 'adopcion' center.id %}" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" name="name" value="{{ center.name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" name="address" value="{{ center.address }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" name="phone" value="{{ center.phone }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ center.email }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Total de Mascotas</label>
+                                            <input type="number" class="form-control" name="total_pets" value="{{ center.total_pets }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Requisitos</label>
+                                            <textarea class="form-control" name="requirements" required>{{ center.requirements }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Proceso de Adopción</label>
+                                            <textarea class="form-control" name="adoption_process" required>{{ center.adoption_process }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Descripción</label>
+                                            <textarea class="form-control" name="description" required>{{ center.description }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Nueva Imagen</label>
+                                            <input type="file" class="form-control" name="image">
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" name="needs_donations" {% if center.needs_donations %}checked{% endif %}>
+                                            <label class="form-check-label">Necesita Donaciones</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                        <a href="{% url 'delete_location' 'adopcion' center.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este centro?')">Eliminar</a>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Categoría -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nueva Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{% url 'add_category' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="categoryName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDescription" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="categoryDescription" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryIcon" class="form-label">Ícono</label>
+                            <input type="text" class="form-control" id="categoryIcon" name="icon" value="chat-dots" required>
+                            <small class="form-text text-muted">Nombre del ícono de Bootstrap Icons</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryOrder" class="form-label">Orden</label>
+                            <input type="number" class="form-control" id="categoryOrder" name="order" value="0" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear Categoría</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para editar categorías -->
+    {% for category in categories %}
+    <div class="modal fade" id="editCategory{{ category.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{% url 'edit_category' category.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="name" value="{{ category.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <input type="text" class="form-control" name="description" value="{{ category.description }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ícono</label>
+                            <input type="text" class="form-control" name="icon" value="{{ category.icon }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script>
+        // Activar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Mantener la pestaña activa después de recargar
+        document.addEventListener('DOMContentLoaded', function() {
+            var hash = window.location.hash;
+            if (hash) {
+                var tab = new bootstrap.Tab(document.querySelector('a[href="' + hash + '"]'));
+                tab.show();
+            }
+        });
+
+        // Guardar la pestaña activa en el hash de la URL
+        var tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
+        tabLinks.forEach(function(tabLink) {
+            tabLink.addEventListener('shown.bs.tab', function (e) {
+                window.location.hash = e.target.getAttribute('href');
+            });
+        });
+    </script>
+</body>
+</html>

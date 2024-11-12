@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta - FAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
+</head>
+<body>
+    <header class="sticky-top bg-light shadow">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
+                Familia Animal Protegida
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'adopcion' %}">Adopciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tiendas' %}">Tiendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'foro' %}">Foro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'cuenta' %}">Cuenta</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <img src="https://img.icons8.com/color/96/user-male-circle--v1.png" alt="Profile" class="mb-3">
+                        <h4>{{ user.email }}</h4>
+                        <p class="text-muted">{{ user.userprofile.get_role_display }}</p>
+                        <hr>
+                        <p class="mb-1"><strong>Miembro desde:</strong></p>
+                        <p class="text-muted">{{ user.userprofile.created_at|date:"d/m/Y" }}</p>
+                        {% if user.userprofile.role == 'admin' %}
+                        <a href="{% url 'panelA' %}" class="btn btn-primary w-100 mt-3">
+                            <i class="bi bi-gear-fill me-2"></i>Panel de Administración
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Información de la Cuenta</h5>
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Biografía</label>
+                                <textarea class="form-control" name="bio" rows="3">{{ user.userprofile.bio }}</textarea>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" name="phone" value="{{ user.userprofile.phone }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" name="address" value="{{ user.userprofile.address }}">
+                                </div>
+                            </div>
+
+                            <h6 class="mb-3">Preferencias</h6>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" name="notifications_enabled" id="notifications" {% if user.userprofile.notifications_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="notifications">Recibir notificaciones</label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" name="dark_mode" id="darkMode" {% if user.userprofile.dark_mode %}checked{% endif %}>
+                                <label class="form-check-label" for="darkMode">Modo oscuro</label>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                <a href="{% url 'logout' %}" class="btn btn-outline-danger">Cerrar Sesión</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="text-center p-3">
+                © 2024 Familia Animal Protegida. Todos los derechos reservados.
+                <section class="mb-4">
+                    <a href="mailto:fappet@proton.me" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-envelope me-1"></i> fappet@proton.me
+                    </a>
+                    <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
+                        <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
+                    </a>
+                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    </a>
+                </section>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -20,7 +20,7 @@ body {
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 1030;
+    z-index: 9999; /
 }
 
 .navbar-brand, .nav-link {
@@ -42,6 +42,7 @@ body {
     overflow-y: auto;
     z-index: 1020;
     padding-top: 80px;
+    margin-top: 65px;
 }
 
 .admin-sidebar .nav-link {
@@ -174,7 +175,6 @@ body {
     object-fit: contain;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .admin-sidebar {
         width: 100%;
@@ -193,7 +193,6 @@ body {
     }
 }
 
-/* Messages styling */
 .messages {
     position: fixed;
     top: 70px;
@@ -221,7 +220,6 @@ body {
     }
 }
 
-/* Tab content transitions */
 .tab-content > .tab-pane {
     transition: all 0.3s ease-in-out;
 }

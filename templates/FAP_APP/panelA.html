@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-    <header class="sticky-top bg-light shadow">
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <a class="navbar-brand" href="{% url 'landingP' %}">
+    <header class="sticky-top bg-light shadow ">
+        <nav class="navbar navbar-expand-lg navbar-light mb-5">
+            <a class="navbar-brand " href="{% url 'landingP' %}">
                 <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
                 Familia Animal Protegida
             </a>
@@ -46,7 +46,7 @@
     </header>
 
     <div class="d-flex">
-        <div class="admin-sidebar mt-5">
+        <div class="admin-sidebar">
             <h3 class="text-white mt-5">Panel de Administrador</h3>
             <nav class="nav flex-column">
                 <a href="#gestionarUsuarios" class="nav-link" data-bs-toggle="tab"><i class="fas fa-users"></i> Gestionar Usuarios</a>
@@ -78,34 +78,34 @@
                                 </thead>
                                 <tbody>
                                     {% for user in users %}
-                                    <tr>
-                                        <td>{{ user.username }}</td>
-                                        <td>{{ user.email }}</td>
-                                        <td>
-                                            <form action="{% url 'editar' %}" method="POST" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="user_id" value="{{ user.id }}">
-                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Editar</button>
-                                            </form>
-                                            <form action="{% url 'eliminar' %}" method="POST" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="user_id" value="{{ user.id }}">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
-                                            </form>
-                                            {% if not user.userprofile.is_banned %}
-                                            <form action="{% url 'ban_user' user.id %}" method="POST" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="date" name="ban_end_date" required class="form-control-sm d-inline" style="width: 120px;">
-                                                <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Ban</button>
-                                            </form>
-                                            {% else %}
-                                            <form action="{% url 'unban_user' user.id %}" method="POST" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Unban</button>
-                                            </form>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>
+                                                <form action="{% url 'editar' %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Editar</button>
+                                                </form>
+                                                <form action="{% url 'eliminar' %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
+                                                </form>
+                                                {% if not user.userprofile.is_banned %}
+                                                <form action="{% url 'ban_user' user.id %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="date" name="ban_end_date" required class="form-control-sm d-inline" style="width: 120px;">
+                                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Ban</button>
+                                                </form>
+                                                {% else %}
+                                                <form action="{% url 'unban_user' user.id %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Unban</button>
+                                                </form>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -164,8 +164,6 @@
                     </div>
                 </div>
 
- 
-                <!-- Agregar Veterinaria -->
                 <div id="agregarVeterinaria" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
@@ -217,7 +215,6 @@
                     </div>
                 </div>
 
-                <!-- Agregar Tienda -->
                 <div id="agregarTienda" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
@@ -268,7 +265,6 @@
                     </div>
                 </div>
 
-                <!-- Agregar Centro de Adopción -->
                 <div id="agregarCentroAdopcion" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
@@ -323,118 +319,135 @@
                     </div>
                 </div>
 
-                <!-- Editar Veterinaria -->
                 <div id="editarVeterinaria" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
                             <i class="fas fa-edit"></i> Editar Veterinarias
                         </div>
                         <div class="card-body">
-                            <div class="list-group">
+                            <div class="accordion" id="veterinariasAccordion">
                                 {% for vet in veterinaries %}
-                                <div class="list-group-item">
-                                    <h5>{{ vet.name }}</h5>
-                                    <form action="{% url 'edit_location' 'veterinarias' vet.id %}" method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="mb-3">
-                                            <label class="form-label">Nombre</label>
-                                            <input type="text" class="form-control" name="name" value="{{ vet.name }}" required>
+                                <div class="accordion-item mb-3">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vet{{ vet.id }}" aria-expanded="false" aria-controls="vet{{ vet.id }}">
+                                            {{ vet.name }} - {{ vet.address }}
+                                        </button>
+                                    </h2>
+                                    <div id="vet{{ vet.id }}" class="accordion-collapse collapse" data-bs-parent="#veterinariasAccordion">
+                                        <div class="accordion-body">
+                                            <form action="{% url 'edit_location' 'veterinarias' vet.id %}" method="POST" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" name="name" value="{{ vet.name }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Dirección</label>
+                                                    <input type="text" class="form-control" name="address" value="{{ vet.address }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Teléfono</label>
+                                                    <input type="tel" class="form-control" name="phone" value="{{ vet.phone }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" name="email" value="{{ vet.email }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tipo de Clínica</label>
+                                                    <select class="form-select" name="clinic_type" required>
+                                                        <option value="general" {% if vet.clinic_type == 'general' %}selected{% endif %}>Medicina General</option>
+                                                        <option value="emergency" {% if vet.clinic_type == 'emergency' %}selected{% endif %}>Emergencias</option>
+                                                        <option value="surgery" {% if vet.clinic_type == 'surgery' %}selected{% endif %}>Cirugía</option>
+                                                        <option value="specialist" {% if vet.clinic_type == 'specialist' %}selected{% endif %}>Especialista</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Descripción</label>
+                                                    <textarea class="form-control" name="description" required>{{ vet.description }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nueva Imagen</label>
+                                                    <input type="file" class="form-control" name="image">
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input type="checkbox" class="form-check-input" name="emergency_service" {% if vet.emergency_service %}checked{% endif %}>
+                                                    <label class="form-check-label">Servicio de Emergencia</label>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    <a href="{% url 'delete_location' 'veterinarias' vet.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta veterinaria?')">Eliminar</a>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Dirección</label>
-                                            <input type="text" class="form-control" name="address" value="{{ vet.address }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Teléfono</label>
-                                            <input type="tel" class="form-control" name="phone" value="{{ vet.phone }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" name="email" value="{{ vet.email }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Tipo de Clínica</label>
-                                            <select class="form-select" name="clinic_type" required>
-                                                <option value="general" {% if vet.clinic_type == 'general' %}selected{% endif %}>Medicina General</option>
-                                                <option value="emergency" {% if vet.clinic_type == 'emergency' %}selected{% endif %}>Emergencias</option>
-                                                <option value="surgery" {% if vet.clinic_type == 'surgery' %}selected{% endif %}>Cirugía</option>
-                                                <option value="specialist" {% if vet.clinic_type == 'specialist' %}selected{% endif %}>Especialista</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Descripción</label>
-                                            <textarea class="form-control" name="description" required>{{ vet.description }}</textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Nueva Imagen</label>
-                                            <input type="file" class="form-control" name="image">
-                                        </div>
-                                        <div class="form-check mb-3">
-                                            <input type="checkbox" class="form-check-input" name="emergency_service" {% if vet.emergency_service %}checked{% endif %}>
-                                            <label class="form-check-label">Servicio de Emergencia</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                        <a href="{% url 'delete_location' 'veterinarias' vet.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta veterinaria?')">Eliminar</a>
-                                    </form>
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Editar Tienda -->
                 <div id="editarTienda" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
                             <i class="fas fa-edit"></i> Editar Tiendas
                         </div>
                         <div class="card-body">
-                            <div class="list-group">
+                            <div class="accordion" id="tiendasAccordion">
                                 {% for store in stores %}
-                                <div class="list-group-item">
-                                    <h5>{{ store.name }}</h5>
-                                    <form action="{% url 'edit_location' 'tiendas' store.id %}" method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="mb-3">
-                                            <label class="form-label">Nombre</label>
-                                            <input type="text" class="form-control" name="name" value="{{ store.name }}" required>
+                                <div class="accordion-item mb-3">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#store{{ store.id }}" aria-expanded="false" aria-controls="store{{ store.id }}">
+                                            {{ store.name }} - {{ store.address }}
+                                        </button>
+                                    </h2>
+                                    <div id="store{{ store.id }}" class="accordion-collapse collapse" data-bs-parent="#tiendasAccordion">
+                                        <div class="accordion-body">
+                                            <form action="{% url 'edit_location' 'tiendas' store.id %}" method="POST" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" name="name" value="{{ store.name }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Dirección</label>
+                                                    <input type="text" class="form-control" name="address" value="{{ store.address }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Teléfono</label>
+                                                    <input type="tel" class="form-control" name="phone" value="{{ store.phone }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" name="email" value="{{ store.email }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tipo de Tienda</label>
+                                                    <select class="form-select" name="store_type" required>
+                                                        <option value="pet_shop" {% if store.store_type == 'pet_shop' %}selected{% endif %}>Tienda de Mascotas</option>
+                                                        <option value="vet_shop" {% if store.store_type == 'vet_shop' %}selected{% endif %}>Tienda Veterinaria</option>
+                                                        <option value="food_shop" {% if store.store_type == 'food_shop' %}selected{% endif %}>Tienda de Alimentos</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Descripción</label>
+                                                    <textarea class="form-control" name="description" required>{{ store.description }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nueva Imagen</label>
+                                                    <input type="file" class="form-control" name="image">
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input type="checkbox" class="form-check-input" name="delivery" {% if store.delivery %}checked{% endif %}>
+                                                    <label class="form-check-label">Delivery Disponible</label>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    <a href="{% url 'delete_location' 'tiendas' store.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta tienda?')">Eliminar</a>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Dirección</label>
-                                            <input type="text" class="form-control" name="address" value="{{ store.address }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Teléfono</label>
-                                            <input type="tel" class="form-control" name="phone" value="{{ store.phone }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" name="email" value="{{ store.email }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Tipo de Tienda</label>
-                                            <select class="form-select" name="store_type" required>
-                                                <option value="pet_shop" {% if store.store_type == 'pet_shop' %}selected{% endif %}>Tienda de Mascotas</option>
-                                                <option value="vet_shop" {% if store.store_type == 'vet_shop' %}selected{% endif %}>Tienda Veterinaria</option>
-                                                <option value="food_shop" {% if store.store_type == 'food_shop' %}selected{% endif %}>Tienda de Alimentos</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Descripción</label>
-                                            <textarea class="form-control" name="description" required>{{ store.description }}</textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Nueva Imagen</label>
-                                            <input type="file" class="form-control" name="image">
-                                        </div>
-                                        <div class="form-check mb-3">
-                                            <input type="checkbox" class="form-check-input" name="delivery" {% if store.delivery %}checked{% endif %}>
-                                            <label class="form-check-label">Delivery Disponible</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                        <a href="{% url 'delete_location' 'tiendas' store.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta tienda?')">Eliminar</a>
-                                    </form>
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -442,62 +455,71 @@
                     </div>
                 </div>
 
-                <!-- Editar Centro de Adopción -->
                 <div id="editarCentroAdopcion" class="tab-pane fade">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0"><i class="fas fa-edit"></i> Editar Centros de Adopción</h5>
+                            <i class="fas fa-edit"></i> Editar Centros de Adopción
                         </div>
                         <div class="card-body">
-                            <div class="list-group">
+                            <div class="accordion" id="adopcionAccordion">
                                 {% for center in adoption_centers %}
-                                <div class="list-group-item">
-                                    <h5>{{ center.name }}</h5>
-                                    <form action="{% url 'edit_location' 'adopcion' center.id %}" method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="mb-3">
-                                            <label class="form-label">Nombre</label>
-                                            <input type="text" class="form-control" name="name" value="{{ center.name }}" required>
+                                <div class="accordion-item mb-3">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#center{{ center.id }}" aria-expanded="false" aria-controls="center{{ center.id }}">
+                                            {{ center.name }} - {{ center.address }}
+                                        </button>
+                                    </h2>
+                                    <div id="center{{ center.id }}" class="accordion-collapse collapse" data-bs-parent="#adopcionAccordion">
+                                        <div class="accordion-body">
+                                            <form action="{% url 'edit_location' 'adopcion' center.id %}" method="POST" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" name="name" value="{{ center.name }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Dirección</label>
+                                                    <input type="text" class="form-control" name="address" value="{{ center.address }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Teléfono</label>
+                                                    <input type="tel" class="form-control" name="phone" value="{{ center.phone }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" name="email" value="{{ center.email }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Total de Mascotas</label>
+                                                    <input type="number" class="form-control" name="total_pets" value="{{ center.total_pets }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Requisitos</label>
+                                                    <textarea class="form-control" name="requirements" required>{{ center.requirements }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Proceso de Adopción</label>
+                                                    <textarea class="form-control" name="adoption_process" required>{{ center.adoption_process }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Descripción</label>
+                                                    <textarea class="form-control" name="description" required>{{ center.description }}</textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nueva Imagen</label>
+                                                    <input type="file" class="form-control" name="image">
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input type="checkbox" class="form-check-input" name="needs_donations" {% if center.needs_donations %}checked{% endif %}>
+                                                    <label class="form-check-label">Necesita Donaciones</label>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    <a href="{% url 'delete_location' 'adopcion' center.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este centro?')">Eliminar</a>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Dirección</label>
-                                            <input type="text" class="form-control" name="address" value="{{ center.address }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Teléfono</label>
-                                            <input type="tel" class="form-control" name="phone" value="{{ center.phone }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" name="email" value="{{ center.email }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Total de Mascotas</label>
-                                            <input type="number" class="form-control" name="total_pets" value="{{ center.total_pets }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Requisitos</label>
-                                            <textarea class="form-control" name="requirements" required>{{ center.requirements }}</textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Proceso de Adopción</label>
-                                            <textarea class="form-control" name="adoption_process" required>{{ center.adoption_process }}</textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Descripción</label>
-                                            <textarea class="form-control" name="description" required>{{ center.description }}</textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Nueva Imagen</label>
-                                            <input type="file" class="form-control" name="image">
-                                        </div>
-                                        <div class="form-check mb-3">
-                                            <input type="checkbox" class="form-check-input" name="needs_donations" {% if center.needs_donations %}checked{% endif %}>
-                                            <label class="form-check-label">Necesita Donaciones</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                        <a href="{% url 'delete_location' 'adopcion' center.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este centro?')">Eliminar</a>
-                                    </form>
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -508,7 +530,6 @@
         </div>
     </div>
 
-    <!-- Modal para Agregar Categoría -->
     <div class="modal fade" id="addCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -546,7 +567,6 @@
         </div>
     </div>
 
-    <!-- Modales para editar categorías -->
     {% for category in categories %}
     <div class="modal fade" id="editCategory{{ category.id }}" tabindex="-1">
         <div class="modal-dialog">
@@ -584,13 +604,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script>
-        // Activar tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
 
-        // Mantener la pestaña activa después de recargar
         document.addEventListener('DOMContentLoaded', function() {
             var hash = window.location.hash;
             if (hash) {
@@ -599,7 +617,6 @@
             }
         });
 
-        // Guardar la pestaña activa en el hash de la URL
         var tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
         tabLinks.forEach(function(tabLink) {
             tabLink.addEventListener('shown.bs.tab', function (e) {

@@ -52,6 +52,51 @@
         </div>
     </section>
 
+    <section class="carousel-section " style="background-color: var(--color7);">
+        <div class="container">
+            <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+                </div>
+                
+                <div class="carousel-inner rounded shadow">
+                    <div class="carousel-item active">
+                        <img src="{% static 'FAP_App/img/adopcion.png' %}" class="d-block w-100" alt="Mascotas en adopción" style="height: 400px; object-fit: cover; width: 150%;">
+                        <div class="carousel-caption d-none d-md-block" style="background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px;">
+                            <h3 style="color: #FFFFFF;">Adopta un amigo</h3>
+                            <p style="color: #FFFFFF;">Dale una segunda oportunidad a una mascota necesitada</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{% static 'FAP_App/img/veterinaria.png' %}" class="d-block w-100" alt="Servicios veterinarios" style="height: 400px; object-fit: cover;">
+                        <div class="carousel-caption d-none d-md-block"style="background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px;">
+                            <h3>Cuidado profesional</h3>
+                            <p>Encuentra las mejores veterinarias para tu mascota</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{% static 'FAP_App/img/tienda.png' %}" class="d-block w-100" alt="Productos para mascotas" style="height: 400px; object-fit: cover;">
+                        <div class="carousel-caption d-none d-md-block"style="background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 10px;">
+                            <h3 style="color: #FFFFFF;">Todo para tu mascota</h3>
+                            <p style="color: #FFFFFF;">Descubre nuestra selección de productos y servicios</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
     <section class="services-section py-5">
         <div class="container">
             <h2 class="text-center mb-5" style="color: var(--color3);">Nuestros Servicios</h2>
@@ -99,24 +144,7 @@
             </div>
         </div>
     </section>
-    <section class="stats-section py-5" style="background-color: var(--color4);">
-        <div class="container">
-            <div class="row text-center g-4">
-                <div class="col-md-4">
-                    <h3 class="display-6" style="color: var(--color3);">1,000+</h3>
-                    <p class="lead">Mascotas Adoptadas</p>
-                </div>
-                <div class="col-md-4">
-                    <h3 class="display-6" style="color: var(--color3);">50+</h3>
-                    <p class="lead">Centros Asociados</p>
-                </div>
-                <div class="col-md-4">
-                    <h3 class="display-6" style="color: var(--color3);">5,000+</h3>
-                    <p class="lead">Usuarios Registrados</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <footer class="text-center text-lg-start mt-auto">
         <div class="container p-4">

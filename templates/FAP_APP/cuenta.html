@@ -12,7 +12,7 @@
 <body>
     <header class="sticky-top bg-light shadow">
         <nav class="navbar navbar-expand-lg navbar-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{% url 'landingP' %}">
                 <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
                 Familia Animal Protegida
             </a>
@@ -37,7 +37,7 @@
                         <a class="nav-link" href="{% url 'foro' %}">Foro</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'cuenta' %}">Cuenta</a>
+                        <a class="nav-link active" href="{% url 'cuenta' %}"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q53 0 100-15.5t86-44.5q-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg></a>
                     </li>
                 </ul>
             </div>
@@ -49,14 +49,25 @@
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body text-center">
-                        <img src="https://img.icons8.com/color/96/user-male-circle--v1.png" alt="Profile" class="mb-3">
+                        
+                        {% if user.userprofile.foto_perfil.url and user.userprofile.foto_perfil.url != '/media/perfil/default.jpg' %}
+                            <img id="foto-perfil" src="{{ user.userprofile.foto_perfil.url }}" alt="Foto de perfil" 
+                            style="cursor: pointer; width: 150px; height: 150px; border-radius: 50%;">
+                        {% else %}
+                            <img id="foto-perfil" src="https://img.icons8.com/color/96/user-male-circle--v1.png" alt="Foto de perfil predeterminada" 
+                            style="cursor: pointer; width: 150px; height: 150px; border-radius: 50%;">
+                        {% endif %}
+                        <form id="update-picture-form" style="display: none;" enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            <input type="file" id="foto-perfil-input" name="foto_perfil" accept="image/*">
+                        </form>
                         <h4>{{ user.email }}</h4>
                         <p class="text-muted">{{ user.userprofile.get_role_display }}</p>
                         <hr>
                         <p class="mb-1"><strong>Miembro desde:</strong></p>
                         <p class="text-muted">{{ user.userprofile.created_at|date:"d/m/Y" }}</p>
                         {% if user.userprofile.role == 'admin' %}
-                        <a href="{% url 'panelA' %}" class="btn btn-primary w-100 mt-3">
+                        <a href="{% url 'panelA' %}#gestionarUsuarios" class="btn btn-primary w-100 mt-3"> 
                             <i class="bi bi-gear-fill me-2"></i>Panel de Administración
                         </a>
                         {% endif %}
@@ -95,17 +106,6 @@
                                     <input type="text" class="form-control" name="address" value="{{ user.userprofile.address }}">
                                 </div>
                             </div>
-
-                            <h6 class="mb-3">Preferencias</h6>
-                            <div class="form-check mb-2">
-                                <input type="checkbox" class="form-check-input" name="notifications_enabled" id="notifications" {% if user.userprofile.notifications_enabled %}checked{% endif %}>
-                                <label class="form-check-label" for="notifications">Recibir notificaciones</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input type="checkbox" class="form-check-input" name="dark_mode" id="darkMode" {% if user.userprofile.dark_mode %}checked{% endif %}>
-                                <label class="form-check-label" for="darkMode">Modo oscuro</label>
-                            </div>
-
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                                 <a href="{% url 'logout' %}" class="btn btn-outline-danger">Cerrar Sesión</a>
@@ -128,8 +128,8 @@
                     <a href="https://www.instagram.com/1_fapp" target="_blank" class="me-4 text-reset">
                         <img src="https://img.icons8.com/color/24/instagram-new.png" alt="Instagram" class="me-1"> @1_fapp
                     </a>
-                    <a href="https://wa.me/56966612491" target="_blank" class="me-4 text-reset">
-                        <i class="bi bi-whatsapp"></i> +56 9 6661 2491
+                    <a href="https://wa.me/56974380803" target="_blank" class="me-4 text-reset">
+                        <i class="bi bi-whatsapp"></i> +56 9 7438 0803
                     </a>
                 </section>
             </div>
@@ -138,5 +138,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('foto-perfil').addEventListener('click', function () {
+            document.getElementById('foto-perfil-input').click();
+        });
+    
+        document.getElementById('foto-perfil-input').addEventListener('change', function () {
+            const formData = new FormData();
+            const fileInput = this.files[0];
+            formData.append('foto_perfil', fileInput);
+    
+            fetch("{% url 'foto_perfil' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.foto_perfil_url) {
+                    document.getElementById('foto-perfil').src = data.foto_perfil_url;
+                    alert('Foto de perfil actualizada.');
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
 </body>
 </html>

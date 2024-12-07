@@ -32,7 +32,6 @@ def login(request):
                     messages.error(request, 'Tu cuenta está suspendida temporalmente')
                     return render(request, 'FAP_APP/login.html')
                 auth_login(request, user)
-                messages.success(request, '¡Bienvenido de vuelta!')
                 return redirect('landingP')
             else:
                 messages.error(request, 'Contraseña incorrecta')
@@ -45,6 +44,17 @@ def logout(request):
     messages.info(request, 'Has cerrado sesión exitosamente')
     return redirect('login')
 
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import UserProfile
+
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import UserProfile
+from django.contrib.auth import login as auth_login
+
 def registro(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -54,11 +64,10 @@ def registro(request):
         if password1 != password2:
             messages.error(request, 'Las contraseñas no coinciden')
             return render(request, 'FAP_APP/registro.html')
-            
+        
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Ya existe una cuenta con ese correo electrónico')
             return render(request, 'FAP_APP/registro.html')
-            
         try:
             username = email.split('@')[0]
             base_username = username
@@ -66,16 +75,24 @@ def registro(request):
             while User.objects.filter(username=username).exists():
                 username = f'{base_username}{counter}'
                 counter += 1
-                
             user = User.objects.create_user(username=username, email=email, password=password1)
-            UserProfile.objects.create(user=user)
+
+            if not hasattr(user, 'userprofile'):
+                last_profile = UserProfile.objects.order_by('-id').first()
+                new_profile_id = last_profile.id + 1 if last_profile else 1 
+                user_profile = UserProfile.objects.create(user=user, id=new_profile_id)
+            else:
+                user_profile = user.userprofile
+
             auth_login(request, user)
-            messages.success(request, '¡Cuenta creada exitosamente!')
             return redirect('landingP')
+        
         except Exception as e:
-            messages.error(request, 'Error al crear la cuenta. Por favor, intenta de nuevo.')
-            
+            messages.error(request, f'Error al crear la cuenta. Por favor, intenta de nuevo. Error: {str(e)}')
+
     return render(request, 'FAP_APP/registro.html')
+
+
 
 @login_required
 @check_banned
@@ -88,7 +105,6 @@ def cuenta(request):
         profile.notifications_enabled = request.POST.get('notifications_enabled') == 'on'
         profile.dark_mode = request.POST.get('dark_mode') == 'on'
         profile.save()
-        messages.success(request, 'Perfil actualizado exitosamente')
         return redirect('cuenta')
     return render(request, 'FAP_APP/cuenta.html')
 
@@ -112,6 +128,7 @@ def panelA(request):
         'stores': stores,
         'veterinaries': veterinaries,
         'adoption_centers': adoption_centers,
+        'categories': ForumCategory.objects.all(),
     }
     
     return render(request, 'FAP_APP/panelA.html', context)
@@ -134,7 +151,6 @@ def editar(request):
         try:
             user.save()
             profile.save()
-            messages.success(request, 'Usuario actualizado exitosamente')
         except Exception as e:
             messages.error(request, f'Error al actualizar usuario: {str(e)}')
             
@@ -144,20 +160,15 @@ def editar(request):
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def eliminar(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
+def eliminar_cuenta(request, user_id):
+    if request.method == "POST":
         user = get_object_or_404(User, id=user_id)
-        
-        try:
-            user.is_active = False
-            user.save()
-            messages.success(request, 'Usuario eliminado exitosamente')
-        except Exception as e:
-            messages.error(request, f'Error al eliminar usuario: {str(e)}')
-            
-    users = User.objects.filter(is_active=True).select_related('userprofile')
-    return render(request, 'FAP_APP/eliminar.html', {'users': users})
+        user.delete()
+        messages.success(request, "La cuenta ha sido eliminada con éxito.")
+        return redirect("panelA")
+    else:
+        messages.error(request, "Método no permitido.")
+        return redirect("panelA")
 
 def landingP(request):
     return render(request, 'FAP_APP/Landingpage.html')
@@ -201,18 +212,10 @@ def adopcion(request):
     context = get_location_context(request, AdoptionCenter, 'adopcion', 'centro de adopción')
     return render(request, 'FAP_APP/location_list.html', context)
 
-def reseñasV(request):
-    veterinaries = VeterinaryClinic.objects.filter(is_active=True)
-    context = {
-        'veterinaries': veterinaries,
-        'page_title': 'Reseñas de Veterinarias',
-    }
-    return render(request, 'FAP_APP/reseñasV.html', context)
-
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def add_location(request, location_type):
+def agregar_location(request, location_type):
     if request.method == 'POST':
         model_class = {
             'tiendas': Store,
@@ -247,7 +250,6 @@ def add_location(request, location_type):
                 location.needs_donations = request.POST.get('needs_donations') == 'on'
                 
             location.save()
-            messages.success(request, 'Ubicación agregada exitosamente')
         except Exception as e:
             messages.error(request, f'Error al agregar la ubicación: {str(e)}')
             
@@ -256,7 +258,7 @@ def add_location(request, location_type):
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def edit_location(request, location_type, location_id):
+def editar_location(request, location_type, location_id):
     model_class = {
         'tiendas': Store,
         'veterinarias': VeterinaryClinic,
@@ -290,16 +292,16 @@ def edit_location(request, location_type, location_id):
                 location.needs_donations = request.POST.get('needs_donations') == 'on'
                 
             location.save()
-            messages.success(request, 'Ubicación actualizada exitosamente')
         except Exception as e:
             messages.error(request, f'Error al actualizar la ubicación: {str(e)}')
             
     return redirect('panelA')
 
+
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def delete_location(request, location_type, location_id):
+def borrar_location(request, location_type, location_id):
     model_class = {
         'tiendas': Store,
         'veterinarias': VeterinaryClinic,
@@ -311,7 +313,6 @@ def delete_location(request, location_type, location_id):
     try:
         location.is_active = False
         location.save()
-        messages.success(request, 'Ubicación eliminada exitosamente')
     except Exception as e:
         messages.error(request, f'Error al eliminar la ubicación: {str(e)}')
         
@@ -329,7 +330,6 @@ def ban_user(request, user_id):
             profile.is_banned = True
             profile.ban_end_date = request.POST.get('ban_end_date')
             profile.save()
-            messages.success(request, f'Usuario {user.username} baneado exitosamente')
         except Exception as e:
             messages.error(request, f'Error al banear al usuario: {str(e)}')
             
@@ -346,7 +346,6 @@ def unban_user(request, user_id):
         profile.is_banned = False
         profile.ban_end_date = None
         profile.save()
-        messages.success(request, f'Usuario {user.username} desbaneado exitosamente')
     except Exception as e:
         messages.error(request, f'Error al desbanear al usuario: {str(e)}')
         
@@ -390,7 +389,7 @@ def foro(request):
 
 @login_required
 @check_banned
-def create_post(request):
+def crear_post(request):
     if request.method == 'POST':
         try:
             post = ForumPost.objects.create(
@@ -400,7 +399,6 @@ def create_post(request):
                 category_id=request.POST['category'],
                 tags=request.POST.getlist('tags[]')
             )
-            messages.success(request, 'Publicación creada exitosamente')
             return redirect('view_post', post_id=post.id)
         except Exception as e:
             messages.error(request, f'Error al crear la publicación: {str(e)}')
@@ -411,7 +409,7 @@ def create_post(request):
 
 @login_required
 @check_banned
-def view_post(request, post_id):
+def ver_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     comments = ForumComment.objects.filter(post=post, parent=None).prefetch_related('replies')
     
@@ -426,7 +424,6 @@ def view_post(request, post_id):
                 content=request.POST['content'],
                 parent=parent
             )
-            messages.success(request, 'Comentario agregado exitosamente')
         except Exception as e:
             messages.error(request, f'Error al agregar el comentario: {str(e)}')
     
@@ -442,7 +439,7 @@ def view_post(request, post_id):
 
 @login_required
 @check_banned
-def edit_post(request, post_id):
+def editar_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     
     if request.user != post.author and not request.user.userprofile.is_admin():
@@ -456,7 +453,6 @@ def edit_post(request, post_id):
             post.category_id = request.POST['category']
             post.tags = request.POST.getlist('tags[]')
             post.save()
-            messages.success(request, 'Publicación actualizada exitosamente')
             return redirect('view_post', post_id=post.id)
         except Exception as e:
             messages.error(request, f'Error al actualizar la publicación: {str(e)}')
@@ -466,7 +462,7 @@ def edit_post(request, post_id):
 
 @login_required
 @check_banned
-def delete_post(request, post_id):
+def borrar_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     
     if request.user != post.author and not request.user.userprofile.is_admin():
@@ -475,7 +471,6 @@ def delete_post(request, post_id):
     
     try:
         post.delete()
-        messages.success(request, 'Publicación eliminada exitosamente')
     except Exception as e:
         messages.error(request, f'Error al eliminar la publicación: {str(e)}')
     
@@ -498,7 +493,7 @@ def user_forum_activity(request, user_id=None):
     return render(request, 'FAP_APP/user_forum_activity.html', context)
 
 @login_required
-def toggle_like_post(request, post_id):
+def like_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     
     if request.user in post.likes.all():
@@ -514,7 +509,7 @@ def toggle_like_post(request, post_id):
     })
 
 @login_required
-def toggle_like_comment(request, comment_id):
+def like_comentario(request, comment_id):
     comment = get_object_or_404(ForumComment, id=comment_id)
     
     if request.user in comment.likes.all():
@@ -532,7 +527,7 @@ def toggle_like_comment(request, comment_id):
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def add_category(request):
+def agregar_categoria(request):
     if request.method == 'POST':
         try:
             category = ForumCategory.objects.create(
@@ -540,15 +535,15 @@ def add_category(request):
                 description=request.POST.get('description', ''),
                 created_by=request.user
             )
-            messages.success(request, 'Categoría agregada exitosamente')
         except Exception as e:
             messages.error(request, f'Error al agregar la categoría: {str(e)}')
     return redirect('panelA')
 
+
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def edit_category(request, category_id):
+def editar_categoria(request, category_id):
     category = get_object_or_404(ForumCategory, id=category_id)
     
     if request.method == 'POST':
@@ -556,7 +551,6 @@ def edit_category(request, category_id):
             category.name = request.POST['name']
             category.description = request.POST.get('description', '')
             category.save()
-            messages.success(request, 'Categoría actualizada exitosamente')
         except Exception as e:
             messages.error(request, f'Error al actualizar la categoría: {str(e)}')
     return redirect('foro')
@@ -564,27 +558,24 @@ def edit_category(request, category_id):
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def delete_category(request, category_id):
+def borrar_categoria(request, category_id):
     category = get_object_or_404(ForumCategory, id=category_id)
     
     try:
-        category.is_active = False
-        category.save()
-        messages.success(request, 'Categoría eliminada exitosamente')
+        category.delete()
     except Exception as e:
         messages.error(request, f'Error al eliminar la categoría: {str(e)}')
-    return redirect('foro')
+    return redirect('panelA')
 
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def lock_post(request, post_id):
+def bloquear_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     
     try:
         post.is_locked = True
         post.save()
-        messages.success(request, 'Publicación bloqueada exitosamente')
     except Exception as e:
         messages.error(request, f'Error al bloquear la publicación: {str(e)}')
     return redirect('view_post', post_id=post.id)
@@ -592,13 +583,35 @@ def lock_post(request, post_id):
 @login_required
 @user_passes_test(is_admin)
 @check_banned
-def unlock_post(request, post_id):
+def desbloquear_post(request, post_id):
     post = get_object_or_404(ForumPost, id=post_id)
     
     try:
         post.is_locked = False
         post.save()
-        messages.success(request, 'Publicación desbloqueada exitosamente')
     except Exception as e:
         messages.error(request, f'Error al desbloquear la publicación: {str(e)}')
     return redirect('view_post', post_id=post.id)
+
+@login_required
+def borrar_comentario(request, comment_id):
+    comentario = get_object_or_404(ForumComment, id=comment_id)
+    
+    if request.user != comentario.author and not request.user.userprofile.is_admin():
+        return JsonResponse({'success': False, 'message': 'No tienes permiso para eliminar este comentario.'}, status=403)
+    
+    try:
+        comentario.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error al eliminar el comentario: {str(e)}'}, status=500)
+
+@login_required
+@check_banned
+def foto_perfil(request):
+    if request.method == 'POST' and request.FILES.get('foto_perfil'):
+        user_profile = UserProfile.objects.get(user=request.user)
+        user_profile.foto_perfil = request.FILES['foto_perfil']
+        user_profile.save()
+        return JsonResponse({'message': 'Foto de perfil actualizada con éxito.', 'foto_perfil_url': user_profile.foto_perfil.url})
+    return JsonResponse({'error': 'Solicitud inválida.'}, status=400)

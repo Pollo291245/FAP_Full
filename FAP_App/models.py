@@ -21,6 +21,8 @@ class UserProfile(models.Model):
     ban_end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    foto_perfil = models.ImageField(upload_to='perfil/', default='perfil/default.jpg')
+    
 
     def __str__(self):
         return f"{self.user.email} - {self.get_role_display()}"
@@ -31,9 +33,9 @@ class UserProfile(models.Model):
 class Location(models.Model):
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=255)
-    phone = models.CharField(max_length=15)
-    email = models.EmailField()
-    website = models.URLField(blank=True)
+    phone = models.CharField(max_length=15, null=True)
+    email = models.EmailField(null=True)
+    website = models.URLField(blank=True, null=True)
     description = models.TextField()
     image = models.ImageField(upload_to='locations/', blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)

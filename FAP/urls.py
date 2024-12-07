@@ -6,27 +6,27 @@ from FAP_App.views import (
 
     login, logout, registro, cuenta,
 
-    editar, eliminar, panelA,
+    editar, eliminar_cuenta, panelA,
 
-    tiendas, veterinarias, adopcion, reseñasV,
-    add_location, edit_location, delete_location,
+    tiendas, veterinarias, adopcion,
+    agregar_location, editar_location, borrar_location,
 
     ban_user, unban_user,
  
     landingP,
 
-    foro, create_post, view_post, edit_post, delete_post,
-    user_forum_activity, toggle_like_post, toggle_like_comment,
+    foro, crear_post, ver_post, editar_post, borrar_post,
+    user_forum_activity, like_post, like_comentario,
     
-    add_category, edit_category, delete_category,
-    lock_post, unlock_post
+    agregar_categoria, editar_categoria, borrar_categoria,
+    bloquear_post, desbloquear_post,borrar_comentario, foto_perfil,
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('adopcion/', adopcion, name='adopcion'),
     path('editar/', editar, name='editar'),
-    path('eliminar/', eliminar, name='eliminar'),
+    path('cuenta/eliminar/<int:user_id>/', eliminar_cuenta, name='eliminar_cuenta'),
     path('foro/', foro, name='foro'),
     path('login/', login, name='login'),
     path('logout/', logout, name='logout'),
@@ -37,27 +37,30 @@ urlpatterns = [
     path('landingP/', landingP, name='landingP'),
     path('cuenta/', cuenta, name='cuenta'),
     
-    path('add_location/<str:location_type>/', add_location, name='add_location'),
-    path('edit_location/<str:location_type>/<int:location_id>/', edit_location, name='edit_location'),
-    path('delete_location/<str:location_type>/<int:location_id>/', delete_location, name='delete_location'),
+    path('add_location/<str:location_type>/', agregar_location, name='agregar_location'),
+    path('edit_location/<str:location_type>/<int:location_id>/', editar_location, name='editar_location'),
+    path('delete_location/<str:location_type>/<int:location_id>/', borrar_location, name='borrar_location'),
     
     path('ban_user/<int:user_id>/', ban_user, name='ban_user'),
     path('unban_user/<int:user_id>/', unban_user, name='unban_user'),
     
-    path('foro/crear/', create_post, name='create_post'),
-    path('foro/post/<int:post_id>/', view_post, name='view_post'),
-    path('foro/post/<int:post_id>/editar/', edit_post, name='edit_post'),
-    path('foro/post/<int:post_id>/eliminar/', delete_post, name='delete_post'),
+    path('foro/crear/', crear_post, name='crear_post'),
+    path('foro/post/<int:post_id>/', ver_post, name='ver_post'),
+    path('foro/post/<int:post_id>/editar/', editar_post, name='editar_post'),
+    path('foro/post/<int:post_id>/eliminar/', borrar_post, name='borrar_post'),
     path('foro/actividad/', user_forum_activity, name='user_forum_activity'),
     path('foro/actividad/<int:user_id>/', user_forum_activity, name='user_forum_activity_detail'),
-    path('foro/post/<int:post_id>/like/', toggle_like_post, name='toggle_like_post'),
-    path('foro/comentario/<int:comment_id>/like/', toggle_like_comment, name='toggle_like_comment'),
+    path('foro/post/<int:post_id>/like/', like_post, name='like_post'),
+    path('foro/comentario/<int:comment_id>/like/', like_comentario, name='like_comentario'),
     
-    path('foro/categoria/agregar/', add_category, name='add_category'),
-    path('foro/categoria/<int:category_id>/editar/', edit_category, name='edit_category'),
-    path('foro/categoria/<int:category_id>/eliminar/', delete_category, name='delete_category'),
-    path('foro/post/<int:post_id>/bloquear/', lock_post, name='lock_post'),
-    path('foro/post/<int:post_id>/desbloquear/', unlock_post, name='unlock_post'),
+    path('foro/categoria/agregar/', agregar_categoria, name='agregar_categoria'),
+    path('foro/categoria/<int:category_id>/eliminar/', borrar_categoria, name='borrar_categoria'),
+    path('foro/categoria/<int:category_id>/editar/', editar_categoria, name='editar_categoria'),
+    path('foro/post/<int:post_id>/bloquear/', bloquear_post, name='bloquear_post'),
+    path('foro/post/<int:post_id>/desbloquear/', desbloquear_post, name='desbloquear_post'),
+    path('foro/comentario/<int:comment_id>/delete/', borrar_comentario, name='delete_comment'),
+    path('foto_perfil/', foto_perfil, name='foto_perfil'),
+    
     
     path('', landingP, name='home'),
 ]

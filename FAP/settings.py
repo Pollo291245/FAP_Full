@@ -81,7 +81,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {         
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fap_db',
+        'NAME': 'fap_db2',
         'USER': 'root',
         'PASSWORD': '',
     }
@@ -127,3 +127,4 @@ LOGIN_REDIRECT_URL = 'editar'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

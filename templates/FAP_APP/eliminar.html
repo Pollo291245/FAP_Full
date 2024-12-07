@@ -4,16 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editar Cuenta - Familia Animal Protegida</title>
+  <title>Eliminar Cuenta - Familia Animal Protegida</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'FAP_App/css/styles.css' %}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
 </head>
 <body>
+
     <header class="sticky-top bg-light shadow">
         <nav class="navbar navbar-expand-lg navbar-light">
-          <a class="navbar-brand" href="{% url 'landingP' %}">
+          <a class="navbar-brand" href="#">
             <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
             Familia Animal Protegida
         </a>
@@ -23,10 +24,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Inicio</a>
+                      <a class="nav-link" href="{% url 'landingP' %}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'adopcion'  %}">Adopciones</a>
+                        <a class="nav-link active" href="{% url 'adopcion'  %}">Adopciones</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'veterinarias' %}">Veterinarias</a>
@@ -39,46 +40,37 @@
                         <a class="nav-link " href="{% url 'foro' %}">Foro</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'editar' %}">Cuenta</a>
+                        <a class="nav-link" href="{% url 'cuenta' %}">Cuenta</a>
                     </li>
                 </ul>
             </div>
         </nav>
     </header>
-  <div class="edit-container d-flex justify-content-center align-items-center">
-    <div class="card edit-card p-4 shadow-lg">
+
+  <div class="login-container d-flex justify-content-center align-items-center">
+    <div class="card login-card p-4 shadow-lg">
       <div class="card-body">
         <div class="text-center mb-4">
-          <h3 class="card-title" >Editar Cuenta</h3>
+          <img src="https://img.icons8.com/color/96/cat--v1.png" alt="Logo animal" class="logo mb-2">
+          <h3 class="card-title" >Eliminar Cuenta</h3>
         </div>
-        <form id="editForm">
-          <div class="form-group mb-3">
-            <label for="name" class="form-label" >Nombre</label>
-            <input type="text" class="form-control" id="name" placeholder="Ingresa tu nombre" required>
-          </div>
-          <div class="form-group mb-3">
-            <label for="lastname" class="form-label" >Apellido</label>
-            <input type="text" class="form-control" id="lastname" placeholder="Ingresa tu apellido" required>
-          </div>
-          <div class="form-group mb-3">
-            <label for="birthday" class="form-label" >Cumpleaños</label>
-            <input type="date" class="form-control" id="birthday" required>
-          </div>
-          <div class="form-group mb-3">
-            <label for="email" class="form-label" >Correo Electrónico</label>
-            <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo" required>
-          </div>
-          <div class="form-group mb-3">
-            <label for="phone" class="form-label" >Número Telefónico</label>
-            <input type="tel" class="form-control" id="phone" placeholder="Ingresa tu número telefónico" required>
-          </div>
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-          </div>
-        </form>
+          <form method="post" action="{% url 'eliminar' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="confirm" class="form-label">Para confirmar, escribe "ELIMINAR"</label>
+              <input type="text" class="form-control" id="confirm" name="confirm" placeholder="Escribe aquí" required>
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-danger">Eliminar Cuenta</button>
+            </div>
+          </form>
+        <div class="text-center mt-3">
+          <a href="perfil.html" class="text-decoration-none" >Volver a mi perfil</a>
+        </div>
       </div>
     </div>
   </div>
+
   <footer class="text-center text-lg-start mt-auto">
     <div class="container p-4">
         
@@ -102,7 +94,10 @@
         </div>
     </div>
 </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  <script src="scripts.js"></script>
+
 </body>
 </html>

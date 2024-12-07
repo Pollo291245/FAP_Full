@@ -9,10 +9,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'FAP_App/css/panelA.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+    {% if messages %}
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <header class="sticky-top bg-light shadow ">
-        <nav class="navbar navbar-expand-lg navbar-light mb-5">
+        
+        <nav class="navbar navbar-expand-lg navbar-light">
             <a class="navbar-brand " href="{% url 'landingP' %}">
                 <img src="{% static 'FAP_App/img/fapp.png' %}" alt="FAP" class="logo">
                 Familia Animal Protegida
@@ -64,7 +86,7 @@
             <div class="tab-content" id="myTabContent">
                 <div id="gestionarUsuarios" class="tab-pane fade show active">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-users"></i> Gestionar Usuarios
                         </div>
                         <div class="card-body">
@@ -73,6 +95,7 @@
                                     <tr>
                                         <th>Nombre</th>
                                         <th>Correo</th>
+                                        <th>Rol</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -82,11 +105,24 @@
                                             <td>{{ user.username }}</td>
                                             <td>{{ user.email }}</td>
                                             <td>
-                                                <form action="{% url 'editar' %}" method="POST" class="d-inline">
+                                                {% if user.is_superuser %}
+                                                    Admin
+                                                {% else %}
+                                                    Usuario
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <form action="{% url 'editar_rol_usuario' %}" method="POST" class="d-inline">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="user_id" value="{{ user.id }}">
-                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Editar</button>
+                                                    <select name="role" class="form-select form-select-sm d-inline w-auto">
+                                                        <option value="admin" {% if user.is_admin %}selected{% endif %}>Admin</option>
+                                                        <option value="user" {% if not user.is_admin %}selected{% endif %}>Usuario</option>
+                                                    </select>
+                                                    
+                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Guardar</button>
                                                 </form>
+                                                
                                                 <form action="{% url 'eliminar_cuenta' user.id %}" method="POST" class="d-inline">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="user_id" value="{{ user.id }}">
@@ -123,7 +159,7 @@
                 </div>
                 <div id="gestionarForo" class="tab-pane fade show active">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header  d-flex justify-content-between align-items-center" style="color: black;">
                             <h5 class="card-title mb-0"><i class="fas fa-comments"></i> Publicaciones por Usuario</h5>
                             
                         </div>
@@ -170,7 +206,7 @@
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header d-flex justify-content-between align-items-center" style="color: black;">
                             <h5 class="card-title mb-0"><i class="fas fa-comments"></i> Categorías del Foro</h5>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                                 <i class="fas fa-plus"></i> Nueva Categoría
@@ -202,7 +238,7 @@
 
                 <div id="agregarVeterinaria" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-clinic-medical"></i> Agregar Veterinaria
                         </div>
                         <div class="card-body">
@@ -257,7 +293,7 @@
 
                 <div id="agregarTienda" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-store"></i> Agregar Tienda
                         </div>
                         <div class="card-body">
@@ -311,7 +347,7 @@
 
                 <div id="agregarCentroAdopcion" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-paw"></i> Agregar Centro de Adopción
                         </div>
                         <div class="card-body">
@@ -368,7 +404,7 @@
                 </div>
                 <div id="editarVeterinaria" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-edit"></i> Editar Veterinarias
                         </div>
                         <div class="card-body">
@@ -436,7 +472,7 @@
                 </div>
                 <div id="editarTienda" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-edit"></i> Editar Tiendas
                         </div>
                         <div class="card-body">
@@ -504,7 +540,7 @@
 
                 <div id="editarCentroAdopcion" class="tab-pane fade">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header" style="color: black;">
                             <i class="fas fa-edit"></i> Editar Centros de Adopción
                         </div>
                         <div class="card-body">
@@ -655,71 +691,13 @@
         </div>
       </div>
     </div>
-  </div>
-  
-  
+    
+</div>
 
-    
-
-    
-    
-
-    
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <script>
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var hash = window.location.hash;
-            if (hash) {
-                var tab = new bootstrap.Tab(document.querySelector('a[href="' + hash + '"]'));
-                tab.show();
-            }
-        });
-
-        var tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
-        tabLinks.forEach(function(tabLink) {
-            tabLink.addEventListener('shown.bs.tab', function (e) {
-                window.location.hash = e.target.getAttribute('href');
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-  const modal = new bootstrap.Modal(document.getElementById("deleteCategoryModal"));
-  const deleteButtons = document.querySelectorAll(".delete-category-button");
-  const deleteForm = document.getElementById("deleteCategoryForm");
-
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const actionUrl = this.getAttribute("data-url");
-      deleteForm.action = actionUrl; // Asigna la URL al formulario
-      modal.show();
-    });
-  });
-});
-
-  document.addEventListener("DOMContentLoaded", () => {
-  const accountModal = new bootstrap.Modal(document.getElementById("deleteAccountModal"));
-  const deleteAccountButtons = document.querySelectorAll(".delete-account-button");
-  const deleteAccountForm = document.getElementById("deleteAccountForm");
-
-  deleteAccountButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const actionUrl = this.getAttribute("data-url");
-      deleteAccountForm.action = actionUrl;
-      accountModal.show();
-    });
-  });
-});
-
-
-
-
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="{% static 'FAP_App/js/panelA.js' %}"></script>
 </body>
 </html>

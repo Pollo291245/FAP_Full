@@ -23,6 +23,11 @@ body {
     z-index: 9999; /
 }
 
+.card-header {
+    color: #ff5733;
+}
+
+
 .navbar-brand, .nav-link {
     color: var(--color5);
 }

@@ -65,7 +65,6 @@
 
         <div class="row">
             <div class="col-md-9">
-                <!-- publi -->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">{{ post.title }}</h4>
@@ -115,13 +114,11 @@
                     </div>
                 </div>
 
-                <!-- com -->
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Comentarios</h5>
                     </div>
                     <div class="card-body">
-                        <!-- formulario de com -->
                         <form method="post" action="{% url 'ver_post' post.id %}" class="mb-4">
                             {% csrf_token %}
                             <div class="mb-3">
@@ -132,7 +129,6 @@
                             </button>
                         </form>
 
-                        <!-- lista de com  -->
                         <div class="comments-list">
                             {% for comment in comments %}
                             {% if not comment.parent %}
@@ -163,7 +159,6 @@
                                     </div>
                                 </div>
 
-                                <!-- respuestas -->
                                 <div class="replies ms-4 mt-2">
                                     {% for reply in comment.replies.all %}
                                     <div class="reply mb-2" id="comment-{{ reply.id }}">
@@ -192,8 +187,7 @@
                                     </div>
                                     {% endfor %}
 
-                                    <!-- responder al foro -->
-                                    <form method="post" action="{% url 'v_post' post.id %}" class="reply-form mt-2" style="display: none;" data-comment-id="{{ comment.id }}">
+                                    <form method="post" action="{% url 'ver_post' post.id %}" class="reply-form mt-2" style="display: none;" data-comment-id="{{ comment.id }}">
                                         {% csrf_token %}
                                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
                                         <div class="input-group">
@@ -214,7 +208,6 @@
                 </div>
             </div>
 
-            <!-- Sidebar -->
             <div class="col-md-3">
                 <div class="card mb-4">
                     <div class="card-header">
@@ -261,7 +254,6 @@
         </div>
     </div>
 
-    <!-- M borrar Post -->
     <div class="modal fade" id="deletePostModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -302,8 +294,9 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         $(document).ready(function() {
             $('.reply-btn').click(function() {
@@ -349,6 +342,14 @@
                 }
             });
         });
+    </script>
+        <script>
+$(document).ready(function() {
+  $('#messageModal').modal('show');
+  setTimeout(function() {
+      $('#messageModal').modal('hide');
+  }, 2000);
+});
     </script>
 </body>
 </html>

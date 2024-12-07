@@ -11,6 +11,23 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
+    {% if success %}
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Publicación actualizada exitosamente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <header class="sticky-top bg-light shadow">
         <nav class="navbar navbar-expand-lg navbar-light">
             <a class="navbar-brand" href="{% url 'landingP' %}">
@@ -60,7 +77,7 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'foro' %}">Foro</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'foro' %}?category={{ post.category.id }}">{{ post.category.name }}</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'view_post' post.id %}">{{ post.title }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'ver_post' post.id %}">{{ post.title }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Editar</li>
             </ol>
         </nav>
@@ -112,17 +129,16 @@
                             <div class="mb-3">
                                 <label for="tags" class="form-label">Etiquetas</label>
                                 <select class="form-control" id="tags" name="tags[]" multiple="multiple">
-                                    <option value="mascotas" {% if 'mascotas' in post.tags %}selected{% endif %}>Mascotas</option>
-                                    <option value="salud" {% if 'salud' in post.tags %}selected{% endif %}>Salud</option>
-                                    <option value="alimentacion" {% if 'alimentacion' in post.tags %}selected{% endif %}>Alimentación</option>
-                                    <option value="cuidados" {% if 'cuidados' in post.tags %}selected{% endif %}>Cuidados</option>
-                                    <option value="adopcion" {% if 'adopcion' in post.tags %}selected{% endif %}>Adopción</option>
-                                    <option value="veterinaria" {% if 'veterinaria' in post.tags %}selected{% endif %}>Veterinaria</option>
-                                    <option value="consejos" {% if 'consejos' in post.tags %}selected{% endif %}>Consejos</option>
-                                    {% for tag in post.tags %}
-                                        {% if tag not in 'mascotas,salud,alimentacion,cuidados,adopcion,veterinaria,consejos'|split:',' %}
+                                    <option value="mascotas" {% if 'mascotas' in tags %}selected{% endif %}>Mascotas</option>
+                                    <option value="salud" {% if 'salud' in tags %}selected{% endif %}>Salud</option>
+                                    <option value="alimentacion" {% if 'alimentacion' in tags %}selected{% endif %}>Alimentación</option>
+                                    <option value="cuidados" {% if 'cuidados' in tags %}selected{% endif %}>Cuidados</option>
+                                    <option value="adopcion" {% if 'adopcion' in tags %}selected{% endif %}>Adopción</option>
+                                    <option value="veterinaria" {% if 'veterinaria' in tags %}selected{% endif %}>Veterinaria</option>
+                                    <option value="consejos" {% if 'consejos' in tags %}selected{% endif %}>Consejos</option>
+                                    
+                                    {% for tag in tags %}
                                         <option value="{{ tag }}" selected>{{ tag }}</option>
-                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">
@@ -130,11 +146,12 @@
                                 </small>
                             </div>
 
+
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-save"></i> Guardar Cambios
                                 </button>
-                                <a href="{% url 'view_post' post.id %}" class="btn btn-secondary">
+                                <a href="{% url 'ver_post' post.id %}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancelar
                                 </a>
                             </div>
@@ -164,9 +181,11 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         $(document).ready(function() {
             $('#tags').select2({
@@ -192,3 +211,5 @@
             })()
         });
     </script>
+</body>
+</html>

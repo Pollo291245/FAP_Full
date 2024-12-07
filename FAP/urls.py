@@ -6,7 +6,7 @@ from FAP_App.views import (
 
     login, logout, registro, cuenta,
 
-    editar, eliminar_cuenta, panelA,
+    editar_rol_usuario, eliminar_cuenta, panelA,
 
     tiendas, veterinarias, adopcion,
     agregar_location, editar_location, borrar_location,
@@ -25,7 +25,7 @@ from FAP_App.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('adopcion/', adopcion, name='adopcion'),
-    path('editar/', editar, name='editar'),
+    path('editar-rol-usuario/', editar_rol_usuario, name='editar_rol_usuario'),
     path('cuenta/eliminar/<int:user_id>/', eliminar_cuenta, name='eliminar_cuenta'),
     path('foro/', foro, name='foro'),
     path('login/', login, name='login'),

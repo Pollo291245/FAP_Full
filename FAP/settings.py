@@ -78,12 +78,16 @@ WSGI_APPLICATION = 'FAP.wsgi.application'
 import pymysql
 pymysql.install_as_MySQLdb()
 
+Pass='Pollo2912'
+
 DATABASES = {         
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fap_db2',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'fap_db',
+        'USER': 'admin',
+        'PASSWORD':Pass,
+        'HOST': 'fap-db.cf42moauuea7.us-east-1.rds.amazonaws.com',
+        'PORT': '3306',
     }
 }
 

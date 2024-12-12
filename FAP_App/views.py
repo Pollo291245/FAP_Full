@@ -27,7 +27,6 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        messages.success(request, 'Bienvenido de vuelta')
         try:
             user = User.objects.get(email=email)
             user = authenticate(username=user.username, password=password)
@@ -286,6 +285,12 @@ def editar_location(request, location_type, location_id):
         'adopcion': AdoptionCenter
     }[location_type]
     
+    locationS={
+        'tiendas': 'editarTienda',
+        'veterinarias': 'Veterinaria',
+        'adopcion': 'CentroAdopcion'
+    }
+    
     location = get_object_or_404(model_class, id=location_id)
     
     if request.method == 'POST':
@@ -317,7 +322,7 @@ def editar_location(request, location_type, location_id):
         except Exception as e:
             messages.error(request, f'Error al actualizar la ubicación: {str(e)}')
             
-    return redirect('panelA')
+    return redirect(to=f"{reverse('panelA')}#editar{locationS[location_type]}")
 
 
 @login_required
@@ -357,7 +362,8 @@ def ban_user(request, user_id):
         except Exception as e:
             messages.error(request, f'Error al banear al usuario: {str(e)}')
             
-    return redirect('panelA')
+    panel_url = reverse('panelA')
+    return redirect(f"{panel_url}#gestionarUsuarios")
 
 @login_required
 @user_passes_test(is_admin)
@@ -561,10 +567,11 @@ def agregar_categoria(request):
                 created_by=request.user
             )
             messages.success(request, "Categoría agregada.")
+            panel_url = reverse('panelA')
+            return redirect(f"{panel_url}#gestionarForo")
         except Exception as e:
             messages.error(request, f'Error al agregar la categoría: {str(e)}')
-        panel_url = reverse('panelA')
-        return redirect(f"{panel_url}#gestionarForo")
+        
 
 
 @login_required
@@ -580,7 +587,8 @@ def editar_categoria(request, category_id):
             category.save()
         except Exception as e:
             messages.error(request, f'Error al actualizar la categoría: {str(e)}')
-    return redirect('foro')
+        panel_url = reverse('panelA')
+        return redirect(panel_url, anchor='gestionarForo')
 
 @login_required
 @user_passes_test(is_admin)

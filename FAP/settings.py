@@ -88,6 +88,9 @@ DATABASES = {
         'PASSWORD':Pass,
         'HOST': 'fap-db.cf42moauuea7.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
+        'OPTIONS': {
+            'ssl': {'ssl_disabled': True}
+        }
     }
 }
 
